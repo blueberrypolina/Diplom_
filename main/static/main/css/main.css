@@ -11,6 +11,11 @@ body {
     animation: gradient 10s ease infinite;
 }
 
+a {
+    text-decoration: none;
+    color: white;
+    }
+
 @keyframes gradient {
     0% {
         background-position: 0 50%;
@@ -34,6 +39,7 @@ body {
   margin-top: 30px;
 }
 
+<<<<<<< HEAD
 .text {
   width: 29ch;
   color: white;
@@ -63,4 +69,8 @@ body {
   from {
     width: 0;
   }
+=======
+Home {
+    margin-right: 20px;
+>>>>>>> 6ccf5902cd2effb2b7320fb6dee15fd1b068a913
 }
