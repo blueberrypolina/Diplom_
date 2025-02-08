@@ -23,30 +23,44 @@ body {
     }
 }
 
-aside img {
-   width: 64px;
-   float: left;
+* {
+  padding: 0;
+  margin: 0;
 }
 
-aside .logo {
-    font-size: 25px;
-    margin-left: 1px;
-    font-weight: 500;
-    font-family: fantasy;
-    position: relative;
-    top: 20px;
-    color: white;
+.wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
 }
 
-
-aside ul {list-style: none}
-
-aside ul li {
-    color: #fff;
-    display: block;
-    margin-top: 10px;
+.text {
+  width: 29ch;
+  color: white;
+  font-family: monospace;
+  font-size: 30px;
+  white-space: nowrap; /* не переносить текст на другую строку */
+  overflow: hidden; /* скрываем переполнение контентом */
+  border-right: 3px solid white; /* рисуем курсор */
+  animation: cursor 0.75s step-end infinite, printed_text 5s steps(29);
 }
 
-Home {
-    margin-right: 20px;
+@keyframes cursor {
+  0% {
+    border-color: white;
+  }
+
+  50% {
+    border-color: transparent;
+  }
+
+  100% {
+    border-color: white;
+  }
+}
+
+@keyframes printed_text {
+  from {
+    width: 0;
+  }
 }
