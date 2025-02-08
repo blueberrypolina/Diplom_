@@ -1,0 +1,52 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+
+    background: linear-gradient(25deg,
+    #e232b3,#2da7a9,#620f99,#0f0529,#000000);
+    background-size: 200% 130%;
+    animation: gradient 10s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0 50%;
+    }
+}
+
+aside img {
+   width: 64px;
+   float: left;
+}
+
+aside .logo {
+    font-size: 25px;
+    margin-left: 1px;
+    font-weight: 500;
+    font-family: fantasy;
+    position: relative;
+    top: 20px;
+    color: white;
+}
+
+
+aside ul {list-style: none}
+
+aside ul li {
+    color: #fff;
+    display: block;
+    margin-top: 10px;
+}
+
+Home {
+    margin-right: 20px;
+}
