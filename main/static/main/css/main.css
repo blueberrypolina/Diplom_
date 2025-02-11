@@ -1,22 +1,15 @@
-html, body {
+html, body { /*Для того, чтобы контент занимал всю страницу браузера*/
     height: 100%;
 }
 
-body {
-    margin: 0;
-
+body { /*Создание градиентного фона для страницы*/
     background: linear-gradient(25deg,
     #e232b3,#2da7a9,#620f99,#0f0529,#000000);
-    background-size: 200% 130%;
-    animation: gradient 10s ease infinite;
+    background-size: 200% 130%; /*Создание эффекта движения*/
+    animation: gradient 10s ease infinite; /*Длительность анимации и бесконечное повторение*/
 }
 
-a {
-    text-decoration: none;
-    color: white;
-    }
-
-@keyframes gradient {
+@keyframes gradient { /*Анимирование фона*/
     0% {
         background-position: 0 50%;
     }
@@ -28,30 +21,59 @@ a {
     }
 }
 
-* {
+img { /*Размер и выравнивание для изображения логотипа*/
+   width: 64px;
+   float: left;
+}
+
+.logo { /*Название сайта возле логотипа*/
+    font-size: 25px; /*Размер шрифта*/
+    margin-left: 1px; /*Отступ слева*/
+    font-weight: 500; /*Жирность*/
+    font-family: fantasy; /*Семейство шрифтов*/
+    position: relative;
+    top: 20px; /*Смещение вниз*/
+    color: white;
+}
+
+header { /*Шапочка сайта*/
+    display: flex;
+    justify-content: space-between; /*Распредление элементов по горизонтали*/
+    align-items: center; /*Выравнивание по вертикали*/
+    padding: 10px 20px; /*Отступы для низа, верха и лево, право*/
+}
+
+a { /*Ссылка на главную страницу*/
+    margin-top: 40px;
+    font-size: 20px;
+    margin-right: 20px;
+}
+
+* { /*Сброс стандартных отступов для всех элементов страницы*/
   padding: 0;
   margin: 0;
 }
 
-.wrapper {
+
+.wrapper { /*Для анимации печатающегося текста*/
   display: flex;
   justify-content: center;
-  margin-top: 30px;
+  margin-top: 150px;
 }
 
-<<<<<<< HEAD
-.text {
-  width: 29ch;
+.text { /*Текст для анимации*/
+  width: 32ch; /*Количество символов в строке*/
   color: white;
   font-family: monospace;
   font-size: 30px;
-  white-space: nowrap; /* не переносить текст на другую строку */
-  overflow: hidden; /* скрываем переполнение контентом */
-  border-right: 3px solid white; /* рисуем курсор */
-  animation: cursor 0.75s step-end infinite, printed_text 5s steps(29);
+  white-space: nowrap; /*Не переносить текст на другую строку*/
+  overflow: hidden; /*Скрываем переполнение контентом*/
+  border-right: 3px solid white; /*Рисуем курсор*/
+  animation: cursor 0.75s step-end infinite, printed_text 5s steps(32);
+  animation-iteration-count: infinite;
 }
 
-@keyframes cursor {
+@keyframes cursor { /*Анимирование курсора*/
   0% {
     border-color: white;
   }
@@ -65,12 +87,40 @@ a {
   }
 }
 
-@keyframes printed_text {
-  from {
+@keyframes printed_text { /*Анимирование печатания*/
+  0% {
     width: 0;
   }
-=======
-Home {
-    margin-right: 20px;
->>>>>>> 6ccf5902cd2effb2b7320fb6dee15fd1b068a913
+  50% {
+    width: 32ch;
+  }
+  100% {
+    width: 32ch;
+  }
 }
+
+.container { /*Общие стили для классов внутри этого (главная страница)*/
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+}
+
+.additional-text {
+    font-size: 22px;
+    color: white;
+    margin-top: -500px;
+}
+
+.osayte-text {
+    font-size: 18px;
+    margin-top: 90px;
+    color: white;
+    width: 80ch;
+    white-space: normal;
+    border: 1px solid #e232b3; /*Рамка*/
+    border-radius: 15px; /*Закругленные углы*/
+    box-shadow: 0 0 10px #e232b3, 0 0 20px #e232b3, 0 0 30px #e232b3; /*Неоновое свечение*/
+ }
