@@ -1,0 +1,25 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<!-- существующая информация о тесте -->
+<h2>Ваш результат: {{ result.score }}/{{ result.max_score }}</h2>
+
+{% if weak_topics %}
+<div class="recommendations">
+    <h3>Рекомендуем обратить внимание на следующие темы:</h3>
+    {% for topic in weak_topics %}
+    <div class="topic-card">
+        <h4>{{ topic.topic.name }}</h4>
+        <p>Правильных ответов: {{ topic.correct_percent }}%</p>
+        <div class="resources">
+            <div>{{ topic.resources|linebreaks }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="congratulations">
+    <h3>Отличный результат! Вы хорошо разобрались во всех темах!</h3>
+</div>
+{% endif %}
+{% endblock %}

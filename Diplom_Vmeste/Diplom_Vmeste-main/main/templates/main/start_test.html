@@ -1,0 +1,94 @@
+{% extends 'main/layout.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="container mt-3">
+    <h2 class="mb-3">Анкета пользователя</h2>
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <div class="row g-3">
+            {% for field in form %}
+                <div class="col-12 col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ field.label }}</label>
+
+                        {% if field.name == 'cyber_crimes' %}
+                            <div class="border p-2" style="max-height: 200px; overflow-y: auto;">
+                                {% for choice in field %}
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ field|add_class:"form-select form-select-sm" }}
+                        {% endif %}
+
+                        <div class="invalid-feedback">
+                            Пожалуйста, заполните это поле
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    Начать тест
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+(function () {
+  'use strict'
+  const forms = document.querySelectorAll('.needs-validation')
+
+  // Добавляем валидацию для select
+  const validateSelect = (select) => {
+    if (select.value === "" || select.value === null) {
+      select.classList.add('is-invalid')
+      return false
+    }
+    select.classList.remove('is-invalid')
+    return true
+  }
+
+  Array.from(forms).forEach(form => {
+    form.addEventListener('submit', event => {
+      let isValid = true
+
+      Array.from(form.elements).forEach(element => {
+        if (element.tagName === 'SELECT' && element.required) {
+          if (!validateSelect(element)) isValid = false
+        }
+      })
+
+      if (!isValid) {
+        event.preventDefault()
+        event.stopPropagation()1
+
+      }
+
+      form.classList.add('was-validated')
+    }, false)
+  })
+})()
+</script>
+
+<style>
+.form-select-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+.form-check {
+    margin-bottom: 0.25rem;
+}
+</style>
+{% endblock %}

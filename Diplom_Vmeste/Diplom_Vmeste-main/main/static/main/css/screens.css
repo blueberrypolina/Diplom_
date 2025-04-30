@@ -1,0 +1,44 @@
+.screen {
+        position: relative;
+        width: 100%;
+        min-height: 100vh;
+        opacity: 1;
+        visibility: visible;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 20px;
+        box-sizing: border-box;
+        margin-top: 70px; /* Отступ для header */
+    }
+
+    .screen1 { 
+        padding-top: 70px; /* Дополнительный отступ для первого экрана */
+    }
+    .screen2 { 
+        background: #ffe6e6; 
+    }
+    .screen3 { 
+        background: #e6f3ff; 
+    }
+
+    .container, .wrapper {
+        max-width: 800px;
+        text-align: center;
+    }
+
+    .animated-text {
+        animation: textAppear 0.8s ease-out forwards;
+    }
+
+    @keyframes textAppear {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }

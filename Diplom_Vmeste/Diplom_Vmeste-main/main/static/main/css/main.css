@@ -1,0 +1,280 @@
+html, body { /*Для того, чтобы контент занимал всю страницу браузера*/
+    height: 100%;
+}
+
+body { /*Создание градиентного фона для страницы*/
+    background: #000000;
+    background-size: 600% 600%; /*Создание эффекта движения*/
+    animation: gradient 10s ease infinite; /*Длительность анимации и бесконечное повторение*/
+}
+
+@keyframes gradient { /*Анимирование фона*/
+    0% {
+        background-position: 0 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0 50%;
+    }
+}
+
+img { /*Размер и выравнивание для изображения логотипа*/
+   width: 64px;
+   float: left;
+}
+
+.logo { /*Название сайта возле логотипа*/
+    font-size: 25px; /*Размер шрифта*/
+    margin-left: 1px; /*Отступ слева*/
+    font-weight: 500; /*Жирность*/
+    font-family: fantasy; /*Семейство шрифтов*/
+    position: relative;
+    top: 20px; /*Смещение вниз*/
+    color: white;
+}
+
+header { /*Шапочка сайта*/
+    display: flex;
+    justify-content: space-between; /*Распредление элементов по горизонтали*/
+    align-items: center; /*Выравнивание по вертикали*/
+    padding: 10px 20px; /*Отступы для низа, верха и лево, право*/
+    height: 70px; /* Фиксированная высота хедера */
+    
+}
+
+a { /*Ссылка на главную страницу*/
+    margin-top: 40px;
+    font-size: 20px;
+    margin-right: 20px;
+}
+
+* { /*Сброс стандартных отступов для всех элементов страницы*/
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Стили для секций */
+section:first-of-type {
+    margin-top: 50px; /* Уменьшенный отступ для первой секции */
+}
+
+section {
+    padding: 30px 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.intro-section {
+    margin-top: 70px; /* Уменьшенный отступ для хедера */
+    padding-top: 20px;
+}
+
+.intro-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.boxes-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 30px;
+    padding: 50px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Стили для мобильных устройств - временно отключено для отладки
+@media (max-width: 768px) {
+    .boxes-section {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+*/
+
+/* Альтернативный вариант на grid */
+/*
+.boxes-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 50px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+*/
+
+.wrapper { /*Для анимации печатающегося текста*/
+  display: flex;
+  justify-content: center;
+  margin-top: 0;
+}
+
+.text { /*Текст для анимации*/
+  width: 32ch; /*Количество символов в строке*/
+  color: white;
+  font-family: monospace;
+  font-size: 30px;
+  white-space: nowrap; /*Не переносить текст на другую строку*/
+  overflow: hidden; /*Скрываем переполнение контентом*/
+  border-right: 3px solid white; /*Рисуем курсор*/
+  animation: cursor 0.75s step-end infinite, printed_text 5s steps(32);
+  animation-iteration-count: infinite;
+}
+
+@keyframes cursor { /*Анимирование курсора*/
+  0% {
+    border-color: white;
+  }
+
+  50% {
+    border-color: transparent;
+  }
+
+  100% {
+    border-color: white;
+  }
+}
+
+@keyframes printed_text { /*Анимирование печатания*/
+  0% {
+    width: 0;
+  }
+  50% {
+    width: 32ch;
+  }
+  100% {
+    width: 32ch;
+  }
+}
+
+.container { 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    text-align: center;
+}
+
+.additional-text {
+    font-size: 22px;
+    color: white;
+    margin-top: 20px;
+}
+
+.osayte-text {
+    font-size: 18px;
+    margin-top: 30px;
+    color: white;
+    width: 80ch;
+    white-space: normal;
+    padding: 10px;
+    position: relative;
+    z-index: 1; /*Слой выше*/
+}
+
+.osayte-text::before { /*Стили для рамки (псевдоэлемент)*/
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid #e232b3;
+    border-radius: 15px;
+    box-shadow: 0 0 10px #e232b3, 0 0 20px #e232b3, 0 0 30px #e232b3;
+    z-index: -1; /*Слой ниже текста*/
+    filter: brightness(1); /*Начальное значение фильтра*/
+    transition: filter 0.7s ease; /*Плпвное изменение фильтра*/
+}
+
+.osayte-text:hover::before { /*Рамка при наведении*/
+    filter: brightness(1.5); /*Увеличиваем яркость рамки при наведении*/
+}
+
+/* Стили для коробок */
+.box {
+    position: relative;
+    width: 280px;
+    height: 260px;
+    background: #fff;
+    border-radius: 20px;
+    margin: 0;
+    flex: 0 0 auto;
+}
+
+.box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    background: #f00;
+    filter: blur(15px);
+}
+
+.box b {
+    position: absolute;
+    display: block;
+    inset: 4px;
+    border-radius: 16px;
+    background: rgba(0,0,0,0.7);
+    z-index: 2;
+}
+
+.box:nth-child(1)::before,
+.box:nth-child(1)::after,
+.box:nth-child(2)::before,
+.box:nth-child(2)::after,
+.box:nth-child(3)::before,
+.box:nth-child(3)::after,
+.box:nth-child(4)::before,
+.box:nth-child(4)::after,
+.box:nth-child(5)::before,
+.box:nth-child(5)::after {
+     background: linear-gradient(45deg, #ff00cc, #0000ff);
+
+}
+
+.box-content {
+    position: relative;
+    z-index: 3;
+    color: white;
+    text-align: center;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.box-content h3 {
+    font-size: 22px;
+    position: absolute;
+    top: 90px;
+    margin: 0;
+    color: #e232b3;
+    text-shadow: 0 0 10px rgba(226, 50, 179, 0.7);
+}
+
+.box-content p {
+    font-size: 16px;
+    position: absolute;
+    top: 130px;
+    width: 80%;
+    color: #ffffff;
+    line-height: 1.4;
+}

@@ -1,0 +1,65 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+{% block title %}Главная страница{% endblock %}
+
+{% block content %}
+
+<section class="intro-section">
+    <div class="wrapper">
+        <div class="text">Привет, займешь денег до завтра?</div>
+    </div>
+    <div class="intro-container">
+        <p class="additional-text">Получали подобное сообщение? Вероятнее всего, вы уже сталкивались с кибермошенниками.</p>
+        <p class="osayte-text">Добро пожаловать на платформу для оценки вашей защищенности от киберугроз. Повышайте свою цифровую грамотность уже сегодня!</p>
+    </div>
+</section>
+
+<section class="boxes-section">
+    <div class="box">
+        <b>
+            <a href="{% url 'random_scenario' %}" style="text-decoration: none; color: inherit; margin: 0;">
+                <div class="box-content">
+                    <h3>Мессенджер</h3>
+                    <p>Вычислите мошенников<br> в диаологе</p>
+                </div>
+            </a>
+        </b>
+    </div>
+    <div class="box">
+        <b>
+            <a href="{% url 'password' %}" style="text-decoration: none; color: inherit; margin: 0;">
+                <div class="box-content">
+                    <h3>Пароли</h3>
+                    <p>Создайте надежный пароль</p>
+                </div>
+            </a>
+        </b>
+    </div>
+    <div class="box">
+        <b>
+            <div class="box-content">
+                <h3>Тестирование</h3>
+                <p>Проверьте теоретические знания</p>
+            </div>
+        </b>
+    </div>
+    <div class="box">
+        <b>
+            <div class="box-content">
+                <h3>Лента новостей</h3>
+                <p>Определите опасен ли пост в соцсети</p>
+            </div>
+        </b>
+    </div>
+    <div class="box">
+        <b>
+            <div class="box-content">
+                <h3>Кейсы</h3>
+                <p>Распознайте схемы мошенников</p>
+            </div>
+        </b>
+    </div>
+</section>
+
+{% endblock %}

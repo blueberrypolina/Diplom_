@@ -1,0 +1,63 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Проверьте бдительность</h2>
+    
+    {% for post in posts %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <!-- Заголовок поста -->
+            <div class="d-flex align-items-center mb-3">
+                <img src="{{ post.author.avatar }}" 
+                     alt="{{ post.author.name }}" 
+                     class="rounded-circle me-3" 
+                     width="50" 
+                     height="50">
+                <div>
+                    <h5 class="mb-0">{{ post.author.name }}</h5>
+                    <small class="text-muted">{{ post.created_at|date:"d M Y H:i" }}</small>
+                </div>
+            </div>
+            
+            <!-- Текст поста -->
+            <p class="card-text">{{ post.content }}</p>
+            
+            <!-- Кнопки проверки -->
+            <form method="post" action="{% url 'check_post' post.id %}">
+                {% csrf_token %}
+                <div class="btn-group" role="group">
+                    <button type="submit" 
+                            name="choice" 
+                            value="danger" 
+                            class="btn btn-outline-danger">
+                        🚨 Подозрительно
+                    </button>
+                    <button type="submit" 
+                            name="choice" 
+                            value="safe" 
+                            class="btn btn-outline-success">
+                        ✅ Безопасно
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Результат проверки -->
+            {% if current_post.id == post.id and result %}
+            <div class="mt-3 alert {% if result.is_correct %}alert-success{% else %}alert-danger{% endif %}">
+                <h5 class="alert-heading">
+                    {% if result.is_correct %}
+                        👍 Верно!
+                    {% else %}
+                        👎 Неверно!
+                    {% endif %}
+                </h5>
+                {{ result.explanation }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

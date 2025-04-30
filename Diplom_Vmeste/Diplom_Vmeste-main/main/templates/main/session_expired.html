@@ -1,0 +1,13 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="alert alert-warning">
+        <h4>Сессия истекла!</h4>
+        <p>Ваша сессия была автоматически завершена из-за неактивности.</p>
+        <a href="{% url 'index' %}" class="btn btn-primary">
+            Вернуться на главную
+        </a>
+    </div>
+</div>
+{% endblock %}

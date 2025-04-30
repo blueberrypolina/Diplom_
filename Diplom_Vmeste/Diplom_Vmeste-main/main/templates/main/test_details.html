@@ -1,0 +1,95 @@
+{% extends 'main/layout.html' %}
+{% load main_tags %}
+{% load custom_tags %}
+{% block content %}
+<div class="container mt-5">
+    <div class="progress mb-4">
+        <div class="progress-bar" role="progressbar"
+             style="width: {{ progress.current|div:progress.total|mul:100 }}%"
+             aria-valuenow="{{ progress.current }}"
+             aria-valuemin="0"
+             aria-valuemax="{{ progress.total }}">
+            Вопрос {{ progress.current }} из {{ progress.total }}
+        </div>
+    </div>
+
+    <h1>{{ test.title }}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Вопрос {{ progress.current }} ({{ question.score }} баллов)</h5>
+                <p class="card-text">{{ question.question_text }}</p>
+
+                <div class="list-group">
+                    {% if question.is_multiple_choice %}
+                        {% for option in question.questionoption_set.all %}
+                        <label class="list-group-item">
+                            <input type="checkbox"
+                                   name="question_{{ question.id }}[]"
+                                   value="{{ option.id }}"
+                                   class="form-check-input me-2"
+                                   {% if option.id in progress.answers|get:question.id %}checked{% endif %}>
+                            {{ option.option_text }}
+                        </label>
+                        {% endfor %}
+                    {% else %}
+                        {% for option in question.questionoption_set.all %}
+                        <label class="list-group-item">
+                            <input type="radio"
+                                   name="question_{{ question.id }}"
+                                   value="{{ option.id }}"
+                                   class="form-check-input me-2"
+                                   required
+                                   {% if option.id in progress.answers|get:question.id %}checked{% endif %}>
+                            {{ option.option_text }}
+                        </label>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            {% if progress.current > 1 %}
+            <a href="?question={{ progress.current|add:-1 }}" class="btn btn-secondary">
+                ← Назад
+            </a>
+            {% else %}
+            <div></div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-success">
+                {% if progress.current == progress.total %}Завершить тест{% else %}Далее →{% endif %}
+            </button>
+        </div>
+        <div id="session-timeout" data-timeout="300"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const timeoutDiv = document.getElementById('session-timeout');
+    const timeoutSeconds = parseInt(timeoutDiv.dataset.timeout);
+    let timer = timeoutSeconds;
+
+    function updateTimer() {
+        const minutes = Math.floor(timer / 60);
+        const seconds = timer % 60;
+        document.getElementById('timer-display').textContent =
+            `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        if (timer <= 0) {
+            window.location.href = "{% url 'session_expired' %}";
+        } else {
+            timer--;
+            setTimeout(updateTimer, 1000);
+        }
+    }
+
+    // Запуск таймера при загрузке страницы
+    updateTimer();
+});
+</script>
+    </form>
+</div>
+{% endblock %}

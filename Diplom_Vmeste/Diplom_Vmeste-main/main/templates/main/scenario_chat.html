@@ -1,0 +1,639 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+{% block title %}Мессенджер{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+  <div id="chat-window" class="chat-window"></div>
+</div>
+
+<div id="choices" class="choices" style="display:none;">
+  {% csrf_token %}
+  {% for choice in choices %}
+    <button class="btn choice-btn" data-value="{{ choice.value }}">
+      {{ choice.label }}
+    </button>
+  {% endfor %}
+</div>
+
+<div id="result-container" class="result-container" style="display:none;">
+  <div class="result-box safe">
+    <div class="result-header">
+      <div class="result-icon">✓</div>
+      <p class="result-title" id="safe-title">Вы не попались на уловку мошенника</p>
+    </div>
+    <div class="result-description">
+      <p id="safe-description">В данной ситуации вы приняли верное решение, не доверяя непроверенной информации и неизвестному человеку. Это хорошая практика цифровой безопасности.</p>
+    </div>
+  </div>
+  <div class="result-box danger">
+    <div class="result-header">
+      <div class="result-icon">✗</div>
+      <p class="result-title" id="danger-title">Вы попались на уловку мошенника</p>
+    </div>
+    <div class="result-description">
+      <p id="danger-description">К сожалению, вы приняли решение, которое могло бы привести к утечке ваших данных или финансовым потерям. Важно проявлять осторожность и не доверять непроверенным источникам.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const chatMessages = {{ messages|safe }};
+  const chatFollowups = {{ followups|safe }};
+  const chatWindow = document.getElementById('chat-window');
+  const choicesContainer = document.getElementById('choices');
+  let idx = 0;
+  let dialogStep = 0; // Текущий шаг диалога (всего 3)
+  let userChoices = []; // Массив для хранения выборов пользователя
+  
+  function showChoices() {
+    // Сначала сбрасываем стили для новой анимации
+    choicesContainer.style.opacity = '0';
+    choicesContainer.style.transform = 'translateY(20px)';
+    // Делаем контейнер видимым
+    choicesContainer.style.display = 'flex';
+    // Запускаем анимацию после микрозадержки
+    setTimeout(() => {
+      choicesContainer.style.animation = 'fadeInSlideUp 0.8s ease-out forwards';
+    }, 10);
+  }
+
+  // Функция для отображения индикатора набора текста и сообщения
+  function showMessageWithTyping(text, sender) {
+    return new Promise(resolve => {
+      if (sender === 'them') {
+        // Создаем индикатор набора текста для мошенника
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'typing-indicator them';
+        // Используем div вместо span для точек
+        typingIndicator.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+        chatWindow.append(typingIndicator);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        
+        // Расчет естественной задержки на основе длины сообщения
+        const messageLength = text.length;
+        let typingDelay = 600;
+        
+        if (messageLength > 30) {
+          // Имитация скорости набора текста ~5 символов в секунду
+          typingDelay = 600 + Math.min(Math.floor(messageLength / 5) * 200, 2000);
+        }
+        
+        // Показываем индикатор набора, затем отображаем сообщение
+        setTimeout(() => {
+          typingIndicator.remove();
+          const d = document.createElement('div');
+          d.className = `bubble ${sender}`;
+          d.textContent = text;
+          chatWindow.append(d);
+          chatWindow.scrollTop = chatWindow.scrollHeight;
+          resolve();
+        }, typingDelay);
+      } else {
+        // Для начальных сообщений от системы
+        const d = document.createElement('div');
+        d.className = `bubble ${sender}`;
+        d.textContent = text;
+        chatWindow.append(d);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        resolve();
+      }
+    });
+  }
+
+  function showNext() {
+    if (idx >= chatMessages.length) {
+      showChoices();
+      return;
+    }
+    const msg = chatMessages[idx++];
+    
+    setTimeout(async () => {
+      await showMessageWithTyping(msg.text, msg.sender);
+      showNext();
+    }, 500); // Задержка между последовательными сообщениями
+  }
+
+  document.addEventListener('DOMContentLoaded', showNext);
+
+  document.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const val = e.currentTarget.dataset.value;
+      userChoices[dialogStep] = val; // Сохраняем выбор пользователя
+      
+      // Скрываем варианты
+      choicesContainer.style.display = 'none';
+      
+      // Сохраняем выбранный текст
+      const selectedText = e.currentTarget.textContent;
+      
+      // Добавляем индикатор набора от пользователя
+      const userTypingIndicator = document.createElement('div');
+      userTypingIndicator.className = 'typing-indicator me';
+      userTypingIndicator.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+      chatWindow.append(userTypingIndicator);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+      
+      // Имитируем задержку печатания пользователя
+      setTimeout(function() {
+        // Удаляем индикатор
+        userTypingIndicator.remove();
+        
+        // Добавляем сообщение пользователя напрямую в DOM
+        const userBubble = document.createElement('div');
+        userBubble.className = 'bubble me';
+        userBubble.textContent = selectedText;
+        chatWindow.appendChild(userBubble);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        
+        console.log('Добавлено сообщение пользователя:', selectedText); // Для отладки
+        
+        // Увеличиваем шаг диалога
+        dialogStep++;
+        
+        // Проверяем, это последний шаг?
+        if (dialogStep >= 3) {
+          // Это третий (последний) выбор - сразу показываем результат
+          setTimeout(function() {
+            // Показываем результат на основе последнего выбора
+            const lastChoice = userChoices[2]; // Индекс 2 - третий выбор
+            showResult(lastChoice);
+          }, 500);
+          return; // Прерываем выполнение, не показываем ответ мошенника
+        }
+        
+        // Продолжаем с ответами мошенника (только для шагов 1 и 2)
+        let elapsed = 1000; // Задержка перед ответом мошенника
+        const followups = chatFollowups[val] || [];
+        followups.forEach((msg, index) => {
+          elapsed += (index === 0) ? 0 : 1000;
+          setTimeout(async () => {
+            await showMessageWithTyping(msg.text, 'them');
+            
+            // Если это последнее сообщение, показываем выбор снова
+            if (index === followups.length - 1) {
+              setTimeout(() => {
+                showChoices();
+              }, 1000);
+            }
+          }, elapsed);
+        });
+      }, 800); // Время имитации печатания пользователя
+    });
+  });
+
+  // Добавляем функцию для настройки текста результатов
+  function setupResultTexts() {
+    // Проверяем, есть ли передаваемые результаты с сервера
+    const results = {{ results|safe }};
+    if (!results) return;
+    
+    // Устанавливаем тексты для безопасного результата (когда выбор был unsafe)
+    const safeResult = results['unsafe'];
+    if (safeResult) {
+      document.getElementById('safe-title').textContent = safeResult.title || 'Вы не попались на уловку мошенника';
+      document.getElementById('safe-description').textContent = safeResult.description || 'Вы приняли верное решение.';
+    }
+    
+    // Устанавливаем тексты для опасного результата (когда выбор был safe)
+    const dangerResult = results['safe'];
+    if (dangerResult) {
+      document.getElementById('danger-title').textContent = dangerResult.title || 'Вы попались на уловку мошенника';
+      document.getElementById('danger-description').textContent = dangerResult.description || 'Вы приняли рискованное решение.';
+    }
+  }
+
+  // Вызываем функцию при загрузке страницы
+  document.addEventListener('DOMContentLoaded', setupResultTexts);
+
+  // В функции showResult вызываем setupResultTexts перед отображением результата
+  function showResult(lastChoice) {
+    const resultContainer = document.getElementById('result-container');
+    const safeBox = resultContainer.querySelector('.result-box.safe');
+    const dangerBox = resultContainer.querySelector('.result-box.danger');
+    
+    // Сначала сбрасываем стили для новой анимации
+    resultContainer.style.opacity = '0';
+    resultContainer.style.transform = 'translateY(20px)';
+    
+    // Показываем нужный результат
+    if (lastChoice === 'safe') {
+      safeBox.style.display = 'block';
+      dangerBox.style.display = 'none';
+    } else {
+      safeBox.style.display = 'none';
+      dangerBox.style.display = 'block';
+    }
+    
+    // Делаем контейнер видимым
+    resultContainer.style.display = 'block';
+    
+    // Запускаем анимацию после микрозадержки
+    setTimeout(() => {
+      resultContainer.style.animation = 'fadeInSlideUp 1s ease-out forwards';
+      resultContainer.scrollIntoView({ behavior: 'smooth' });
+    }, 10);
+  }
+})();
+</script>
+<style>
+.chat-container {
+  max-width: 600px; 
+  margin: 90px auto 20px; 
+  display: flex; 
+  flex-direction: column; 
+  height: 45vh;
+  position: relative;
+  z-index: 1;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 0 20px #9932cc, 0 0 30px rgba(153, 50, 204, 0.3);
+}
+
+.chat-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid #9932cc;
+  border-radius: 15px;
+  z-index: -1;
+  background: linear-gradient(45deg, rgba(0,0,0,0.95), rgba(20,20,20,0.9));
+}
+
+.chat-window {
+  flex: 1; 
+  overflow-y: auto; 
+  padding: 20px; 
+  background: rgba(0,0,0,0.7);
+  background-image: radial-gradient(circle at top right, rgba(153, 50, 204, 0.1) 0%, transparent 60%),
+                     radial-gradient(circle at bottom left, rgba(100, 43, 194, 0.15) 0%, transparent 60%);
+}
+
+.bubble {
+  display: inline-block; 
+  padding: 12px 18px; 
+  margin: 6px 0; 
+  border-radius: 20px; 
+  max-width: 75%; 
+  word-wrap: break-word; 
+  clear: both;
+  position: relative;
+  animation: fadeIn 0.3s ease-out forwards;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bubble.them {
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(240,240,240,0.95));
+  float: left; 
+  border-top-left-radius: 0;
+  color: #141414;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  backdrop-filter: blur(5px);
+  border-left: 2px solid #9932cc;
+}
+
+.bubble.me {
+  background: linear-gradient(135deg, #9932cc, #e232b3);
+  color: white; 
+  float: right; 
+  border-top-right-radius: 0;
+  box-shadow: 0 0 15px rgba(226, 50, 179, 0.3);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+  backdrop-filter: blur(5px);
+  border-right: 2px solid #e232b3;
+}
+
+.choices {
+  max-width: 600px;
+  margin: 15px auto 30px;
+  padding: 20px; 
+  background: rgba(0,0,0,0.85);
+  border-radius: 15px;
+  display: none; 
+  justify-content: space-around;
+  gap: 12px;
+  animation: fadeInSlideUp 0.8s ease-out forwards;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes fadeInSlideUp {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.choice-btn {
+  flex: 1; 
+  margin: 0; 
+  padding: 15px 12px; 
+  border: none; 
+  border-radius: 20px; 
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: box-shadow 0.4s ease-out;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  color: white;
+  background: rgba(10, 10, 10, 0.7);
+  box-shadow: 0 0 15px rgba(226, 50, 179, 0.6),
+              0 0 5px #e232b3;
+  outline: none;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.choice-btn::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  background: transparent;
+  transition: transform 0.3s ease;
+  transform: translateY(0);
+  z-index: -2;
+}
+
+.choice-btn:hover {
+  box-shadow: inset 0 0 15px rgba(226, 50, 179, 0.5),
+              0 0 20px #e232b3, 0 0 40px rgba(226, 50, 179, 0.4);
+  color: white;
+  text-shadow: 0 0 8px #fff;
+  border: none;
+  outline: none;
+}
+
+.choice-btn:hover::after {
+  transform: translateY(-2px);
+}
+
+.choice-btn:active {
+  box-shadow: inset 0 0 10px rgba(226, 50, 179, 0.7);
+  transition: box-shadow 0.1s ease;
+}
+
+.choice-btn:active::after {
+  transform: translateY(1px);
+  transition: transform 0.1s ease;
+}
+
+.choice-btn + .choice-btn {
+  box-shadow: 0 0 15px rgba(0, 238, 255, 0.6),
+              0 0 5px #00eeff;
+}
+
+.choice-btn + .choice-btn:hover {
+  box-shadow: inset 0 0 15px rgba(0, 238, 255, 0.5),
+              0 0 20px #00eeff, 0 0 40px rgba(0, 238, 255, 0.4);
+  color: white;
+  text-shadow: 0 0 8px #fff;
+  border: none;
+  outline: none;
+}
+
+.choice-btn + .choice-btn:active {
+  box-shadow: inset 0 0 10px rgba(0, 238, 255, 0.7);
+}
+
+/* Кастомный скроллбар */
+.chat-window::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-window::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #9932cc, #b14cff);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.chat-window::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #b14cff, #c278ff);
+  background-clip: content-box;
+}
+
+@media (max-width: 768px) {
+  .chat-container {
+    max-width: 95%;
+    height: 50vh;
+    margin: 70px auto 15px;
+  }
+  
+  .bubble {
+    max-width: 85%;
+  }
+  
+  .choices {
+    max-width: 95%;
+    flex-direction: column;
+    margin: 10px auto 20px;
+  }
+  
+  .choice-btn {
+    margin: 5px 0;
+  }
+}
+
+.result-container {
+  max-width: 600px;
+  margin: 10px auto 20px;
+  padding: 0;
+  border-radius: 15px;
+  animation: fadeInSlideUp 1s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.result-box {
+  padding: 15px;
+  border-radius: 15px;
+  margin-bottom: 10px;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.result-icon {
+  font-size: 24px;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.result-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  margin: 0;
+  display: inline-block;
+}
+
+.result-description {
+  padding-left: 34px;
+}
+
+.result-description p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 8px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.result-box.safe {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.9));
+  box-shadow: 0 0 20px #00eeff, 0 0 30px rgba(0, 238, 255, 0.3);
+  border: none;
+}
+
+.result-box.danger {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.9));
+  box-shadow: 0 0 20px #e232b3, 0 0 30px rgba(226, 50, 179, 0.3);
+  border: none;
+}
+
+.result-box.safe .result-icon {
+  color: #00eeff;
+  text-shadow: 0 0 10px #00eeff;
+}
+
+.result-box.danger .result-icon {
+  color: #e232b3;
+  text-shadow: 0 0 10px #e232b3;
+}
+
+@media (max-width: 768px) {
+  .result-container {
+    max-width: 95%;
+    margin: 15px auto;
+  }
+}
+
+.choice-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 300%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    #e232b3, #9932cc, #e232b3, #9932cc);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.5s ease, filter 0.5s ease;
+  animation: borderGlow 6s linear infinite;
+  filter: blur(8px);
+}
+
+.choice-btn + .choice-btn::before {
+  background: linear-gradient(90deg, 
+    #00eeff, #1a82ff, #00eeff, #1a82ff);
+}
+
+@keyframes borderGlow {
+  0% { transform: translateX(-66.6%); }
+  100% { transform: translateX(0%); }
+}
+
+.choice-btn:hover::before {
+  opacity: 0.8;
+  filter: blur(12px);
+}
+
+/* Добавляем стили для индикатора печати */
+.typing-indicator {
+  display: inline-block;
+  padding: 8px 12px;
+  margin: 6px 0;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.5);
+  position: relative;
+  clear: both;
+  width: auto;
+}
+
+.typing-indicator.them {
+  float: left;
+  border-top-left-radius: 0;
+}
+
+.typing-indicator.me {
+  float: right;
+  border-top-right-radius: 0;
+  background: rgba(153, 50, 204, 0.3);
+}
+
+.typing-indicator .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 3px;
+  border-radius: 50%;
+  background-color: #9932cc;
+  opacity: 0.7;
+}
+
+.typing-indicator.me .dot {
+  background-color: white;
+}
+
+.typing-indicator .dot:nth-child(1) {
+  animation: bouncing 1s infinite 0s;
+}
+
+.typing-indicator .dot:nth-child(2) {
+  animation: bouncing 1s infinite 0.2s;
+}
+
+.typing-indicator .dot:nth-child(3) {
+  animation: bouncing 1s infinite 0.4s;
+}
+
+@keyframes bouncing {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+</style>
+{% endblock %}
